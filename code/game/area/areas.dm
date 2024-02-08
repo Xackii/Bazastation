@@ -20,6 +20,8 @@
 	var/map_name
 	/// Is the lightswitch in this area on? Controls whether or not lights are on and off
 	var/lightswitch = TRUE
+	/// Is the window tint control in this area on? Controls whether electrochromic windows and doors are tinted or not
+	var/window_tint = FALSE
 	/// If TRUE, the local powernet in this area will have all its power channels switched off
 	var/apc_starts_off = FALSE
 	/// If TRUE, this area's local powernet will require power to properly operate machines
@@ -43,6 +45,20 @@
 	var/outdoors = FALSE //For space, the asteroid, lavaland, etc. Used with blueprints to determine if we are adding a new area (vs editing a station room)
 	var/xenobiology_compatible = FALSE //Can the Xenobio management console transverse this area by default?
 	var/nad_allowed = FALSE //is the station NAD allowed on this area?
+
+	/// All beauty in this area combined, only includes indoor area.
+	var/totalbeauty = 0
+	/// Beauty average per open turf in the area
+	var/beauty = 0
+	/// If a room is too big it doesn't have beauty.
+	var/beauty_threshold = 220
+
+	/// Bonus mood for being in this area
+	var/mood_bonus = 0
+	/// Mood message for being here, only shows up if mood_bonus != 0
+	var/mood_message = "This area is pretty nice!"
+	/// Does the mood bonus require a trait?
+	var/mood_trait
 
 	// This var is used with the maploader (modules/awaymissions/maploader/reader.dm)
 	// if this is 1, when used in a map snippet, this will instantiate a unique
@@ -118,6 +134,17 @@
 	reg_in_areas_in_z()
 
 	return INITIALIZE_HINT_LATELOAD
+
+/area/LateInitialize()
+	update_beauty()
+
+/area/proc/update_beauty()
+	var/area_size = 0
+	for(var/turf/nothingvar in get_area_turfs(src))
+		area_size++
+	if(1 > area_size || area_size > beauty_threshold)
+		return
+	beauty = totalbeauty / area_size
 
 /area/proc/on_security_level_update(datum/source, previous_level_number, new_level_number)
 	SIGNAL_HANDLER

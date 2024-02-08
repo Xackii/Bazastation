@@ -138,6 +138,9 @@
 	var/footstep_type
 	/// Can this simple mob crawl or not? If FALSE, it won't get immobilized by crawling
 	var/can_crawl = FALSE
+	//animals increase room beauty
+	var/beauty = 500
+	var/beauty_dead = -200
 
 /mob/living/simple_animal/Initialize(mapload)
 	. = ..()
@@ -157,6 +160,8 @@
 		regenerate_icons()
 	if(footstep_type)
 		AddComponent(/datum/component/footstep, footstep_type)
+
+	AddElement(/datum/element/beauty, beauty)
 
 /mob/living/simple_animal/Destroy()
 	/// We need to clear the reference to where we're walking to properly GC
@@ -387,6 +392,8 @@
 	. = ..()
 	if(!.)
 		return FALSE
+	RemoveElement(/datum/element/beauty)
+	AddElement(/datum/element/beauty, beauty_dead) // Dead animals not beauty.
 	flying = FALSE
 	if(nest)
 		nest.spawned_mobs -= src
@@ -467,6 +474,8 @@
 	icon_state = icon_living
 	density = initial(density)
 	flying = initial(flying)
+	RemoveElement(/datum/element/beauty)
+	AddElement(/datum/element/beauty, beauty)
 	if(collar_type)
 		collar_type = "[initial(collar_type)]"
 		regenerate_icons()
